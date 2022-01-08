@@ -18,7 +18,7 @@ class FrameworkManager:
 
         # Get stats for collection        
         indexer = NounIndexer()
-        self.weigths, self.K = indexer(self.collection.bodies)
+        self.weigths, self.idf, self.tf, self.K = indexer(self.collection.bodies)
 
     def get_stats(self, index: int) -> Tuple[DocCollection, List[float]]:
         """Obtain the weights of a document given a collection index

@@ -17,13 +17,15 @@ class NounIndexer(Indexer):
             docs_text (List[str]): Document body text
 
         Returns:
-            Tuple: A tuple with the weights and keywords
+            Tuple: A tuple with the weights, idf, tf, and keywords
         """        
         nouns = self.__extract_nouns__(docs_text)
 
         vectorize = TfidfVectorizer(vocabulary=nouns)
         weight = vectorize.fit_transform(docs_text)
-        return (weight, vectorize.get_feature_names_out())
+        idf = vectorize.idf_
+        tf = [w / idf for w in weight]
+        return (weight, idf, tf, vectorize.get_feature_names_out())
 
 
     def __extract_nouns__(self, docs_text: List[str]) -> List[str]:
