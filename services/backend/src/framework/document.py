@@ -36,7 +36,7 @@ class CranDocument(BaseDocument):
     __type__ = "cran"
 
     def __init__(self, id: int, title: str, text: str, author: str, editorial: str):
-        BaseDocument.__init__(self, id, title, text)
-        self.author = author
-        self.editorial = editorial
+        BaseDocument.__init__(self, id, title.lower(), text.lower())
+        self.author = author.lower()
+        self.editorial = editorial.lower()
 

@@ -1,0 +1,10 @@
+{
+    "db": {
+        "cran": {
+            "path": "db/cran/cran.all.1400", 
+            "__type__": "cran"
+        }
+    },
+    "alpha": 0.4,
+    "top": 15
+}

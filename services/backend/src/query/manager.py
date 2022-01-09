@@ -1,9 +1,10 @@
 from typing import List, Tuple
 from . import Query
 from ..framework import FrameworkManager
-from sklearn.feature_extraction.text import CountVectorizer
-from numpy import array, argmax
-
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from nltk import word_tokenize, pos_tag
+from nltk.corpus import stopwords
+from nltk.stem.wordnet import WordNetLemmatizer
 
 class QueryManager:
     def __init__(self, alpha: float, frame: FrameworkManager):
@@ -15,22 +16,27 @@ class QueryManager:
 
     def __call__(self, text: str) -> Tuple[Query, List[float]]:
 
-        qry = Query(text)
+        qry = Query(text.lower())
+        qry = self.preprocess_query_text(qry)
 
-        vectorize = CountVectorizer(vocabulary=self.vocabulary)
-
-        global_freq = vectorize.fit_transform(self.frame.collection.bodies)
-        freq = vectorize.fit_transform(qry.text)
-
-        index_horizontal = argmax(global_freq)
-        row = index_horizontal // global_freq.shape[0]
-        col = index_horizontal % global_freq.shape[1]
-
-        max_f = global_freq[row, col]
-        f_max = freq[col]
-        tf = array([self.alpha + (1 - self.alpha)*(f/max_f*f_max)
-                    for f in freq])
-
-        weight = tf * self.frame.idf
+        weight = self.get_weight(qry)
 
         return (qry, weight)
+    
+    def get_weight(self, qry: Query):
+        vectorize = TfidfVectorizer(vocabulary=self.vocabulary)
+        weight = vectorize.fit_transform([qry.text])
+        
+        return weight
+
+    def preprocess_query_text(self, qry: Query) -> Query:
+        text = qry.text
+
+        stop_words = set(stopwords.words('english'))
+        tokenized = word_tokenize(text)
+        tokenized = [WordNetLemmatizer().lemmatize(w) for w in tokenized]
+        tokenized = [token for token in tokenized if not token in stop_words]
+
+        qry.text = " ".join(tokenized)
+        return qry
+

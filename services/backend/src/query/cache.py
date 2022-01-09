@@ -45,9 +45,10 @@ class QueryCache:
         for qry in self.__memory__.keys():
             yield qry
 
-    def __contains__(self, qry: Query) -> Tuple[bool, Query]:
+    def contains(self, qry: str) -> Tuple[bool, Query]:
+        qry = qry.lower()
         for q in self:
-            if q == qry:
+            if q.text == qry:
                 return (True, q)
         return (False, None)
 

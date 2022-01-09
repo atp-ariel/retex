@@ -1,10 +1,9 @@
-from dataclasses import dataclass
 from typing import Type
 
-@dataclass
 class Query:
-    text: str
-
+    def __init__(self, text: str):
+        self.text = text.lower()
+        
     def __getitem__(self, index: int) -> str:
         return self.text[index]
         

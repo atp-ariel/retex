@@ -3,7 +3,7 @@ from typing import List, Tuple
 from . import BaseDocument
 from .collection import DocCollection
 from .parsers import BaseParser
-from .indexer import NounIndexer
+from .indexer import NounIndexer, NaiveIndexer
 
 class FrameworkManager:
     def __init__(self, doc_path: Path, type: str):
@@ -17,7 +17,7 @@ class FrameworkManager:
         self.collection = DocCollection(docs)
 
         # Get stats for collection        
-        indexer = NounIndexer()
+        indexer = NaiveIndexer()
         self.weigths, self.idf, self.tf, self.K = indexer(self.collection.bodies)
 
     def get_stats(self, index: int) -> Tuple[DocCollection, List[float]]:
