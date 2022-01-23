@@ -39,7 +39,7 @@ class QueryCache:
     def __getitem__(self, qry: Query) -> List:
         if qry in self.__memory__:
             self.__memory__[qry].freq += 1
-            return self.__memory__[qry].dcos
+            return self.__memory__[qry].docs
 
     def __iter__(self) -> Iterable[Query]:
         for qry in self.__memory__.keys():

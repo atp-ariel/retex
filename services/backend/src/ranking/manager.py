@@ -1,7 +1,7 @@
 from typing import List
-from heapq import nlargest
-from numpy import array
+from heapq import  nlargest
 from sklearn.metrics.pairwise import cosine_similarity
+from ..config import Config
 from ..framework import FrameworkManager, BaseDocument
 from ..query import Query
 
@@ -18,8 +18,11 @@ class RankManager:
             doc = framework.collection[i]
             sim = cos[i]
             doc_cos.append((doc, sim))
-        
+
+        umbral = Config().get_umbral()
+
         top = nlargest(self.top, doc_cos, key=lambda x: x[1])
+        top = list(filter(lambda t: t[1] > umbral, top))
         top = list(map(lambda t: t[0], top))
         return top
 

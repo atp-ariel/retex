@@ -1,6 +1,5 @@
 from pathlib import Path
 from typing import List
-
 from .framework import FrameworkManager, BaseDocument
 from .query import QueryCache, QueryManager
 from .ranking import RankManager
@@ -40,6 +39,32 @@ except LookupError:
 @Singleton
 class Retex:
     def __init__(self, __type__: str):
+        #region Download resource before use
+        try:
+            data.find('tokenizers/punkt')
+        except LookupError:
+            download('punkt')
+
+        try:
+            data.find("corpora/omw-1.4")
+        except LookupError:
+            download('omw-1.4')
+
+        try:
+            data.find("corpora/wordnet")
+        except LookupError:
+            download("wordnet")
+
+        try:
+            data.find("taggers/averaged_perceptron_tagger")
+        except LookupError:
+            download('averaged_perceptron_tagger')
+
+        try:
+            data.find("corpora/stopwords")
+        except LookupError:
+            download("stopwords")
+        #endregion
         self.__type__ = __type__
         path = Config().get_db_path(self.__type__)
         
