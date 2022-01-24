@@ -17,7 +17,7 @@ class FrameworkManager:
         self.collection = DocCollection(docs)
 
         # Get stats for collection        
-        indexer = NaiveIndexer()
+        indexer = NounIndexer()
         self.weigths, self.idf, self.tf, self.K = indexer(self.collection.bodies)
 
     def get_stats(self, index: int) -> Tuple[DocCollection, List[float]]:

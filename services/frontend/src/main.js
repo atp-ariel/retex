@@ -1,8 +1,16 @@
-import Vue from 'vue'
-import App from './App.vue'
+import axios from 'axios';
+import Vue from 'vue';
 
-Vue.config.productionTip = false
+import App from './App.vue';
+import router from './router';
+
+
+axios.defaults.withCredentials = true;
+axios.defaults.baseURL = 'http://localhost:5000/';  // the FastAPI backend
+
+Vue.config.productionTip = false;
 
 new Vue({
-  render: h => h(App),
-}).$mount('#app')
+  router,
+  render: h => h(App)
+}).$mount('#app');
