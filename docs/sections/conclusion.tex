@@ -1,0 +1,13 @@
+\section{Conclusiones}
+
+Entre las ventajas del modelo implementado, podemos decir que su tiempo de respuesta es bastante rápido lo cual constituye una de las medidas subjetivas de evaluación. Además su interfaz visual es bastante intuitiva por tanto el usuario final que utiliza ReTex no tiene que realizar grandes esfuerzos para realizar una consulta al sistema. Además el modelo se basa en las métricas Tf-Idf para darle peso a los términos. Pero también presenta deficiencias el sistema. La primera es que considera a los términos indexados como independientes. Sabemos que en la realidad sí existe correlación entre  algunos. Por ejemplo si analizamos las palabras sistema y computación es probable que en un texto especializado aparezcan frecuentemente correlacionados. Esta presunción del modelo vectorial aunque pueda parecer una  limitación simplifica el proceso de recuperación y en algunos casos mejora su rendimiento. El análisis de correlación de términos requiere de enfoques más avanzados y está sujeto al contexto y la naturaleza de los documentos en términos de variedad temática, por ejemplo. Otra de las deficiencias es que el modelo del motor de búsqueda es estático por tanto, si se añaden nuevos documentos al sistema utilizando mecanismos vistos en conferencias como los Crawlers, se tendría que calcular todo el modelo nuevamente lo cual sería costoso. Además, toda consulta debe tener al menos un término en común con alguno de los documentos, si no la función $sim$ sería 0.
+
+\section{Recomendaciones}
+
+Entre las recomendaciones de los autores para mitigar las desventajas se encuentran las siguientes:
+
+\begin{enumerate}
+    \item[$\bullet$] El uso de word embeddings para mitigar el error de $sim = 0$ y además representar el contexto de los términos indexados.
+    \item[$\bullet$] Explorar los resultados de lo siguiente: agrupar los documentos por temáticas o categorías y cuando se introduzca una consulta al motor de búsqueda se buscaría solamente entre los documentos que pertenecen a la misma temática que la consulta. Esta idea se estuvo explorando y en principio se obtuvieron resultados no muy buenos pues se escapaban documentos relevantes cuya temática principal no era la idea central de la consulta. 
+    \item[$\bullet$] Añadir expansión de las consultas al sistema, para reducir el esfuerzo del usuario en la realización de las consultas.
+\end{enumerate}

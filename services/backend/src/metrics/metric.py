@@ -29,7 +29,7 @@ class Recall(Metrics):
         return true_divide(len(rrel), (len(rrel) + len(nrel)))
 
 class FMean(Metrics):
-    def __call__(self, RR: List[int], REL: List[int], beta: float = 0.7):
+    def __call__(self, RR: List[int], REL: List[int], beta: float = 0.5):
         P = Precission()(RR, REL)
         R = Recall()(RR, REL)
 

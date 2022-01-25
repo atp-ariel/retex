@@ -1,0 +1,42 @@
+\documentclass[runningheads,a4paper]{llncs}
+
+\usepackage{amssymb}
+\setcounter{tocdepth}{3}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage[spanish]{babel}
+
+
+
+% ! META INFO
+% ? Title of the doc
+\title{ReTex: implementación de un sistema de recuperación de información basada en texto.}
+\titlerunning{ReTex}
+% ? authors of the doc
+\author{Frank Abel Blanco Gómez - C312\\Ariel Alfonso Triana Pérez - C311}
+\authorrunning{F. Blanco, A. Triana}
+% ? institute of authors
+\institute{Facultad de Matemática y Computación (MATCOM),\\
+Universidad de La Habana\\
+San Lázaro y L. Vedado. La Habana. Cuba\\
+\url{frank.blanco@estudiantes.matcom.uh.cu}\\
+\url{ariel.triana@estudiantes.matcom.uh.cu}}
+
+\begin{document}
+    \mainmatter 
+    \maketitle
+
+    \begin{abstract}
+        La Recuperación de Información en Texto es una rama de la investigación multidisciplinaria donde se pretende como primer objetivo  extraer información representada en documentos digitales de texto. En el presente se propone un modelo de recuperación de información basado en el modelo vectorial que cuenta con una interfaz gráfica. El modelo propuesto es rápido y recupera una fracción buena de documentos relevantes aplicando técnicas de lemantización y eliminación de stopwords en los documentos. El ranking construido como respuesta a las consultas del usuario se hace utilizando las técnicas de Top-rank y Threshold-rank. Además se evalua el sistema de forma crítica proponiendo mejoras al sistema.
+        \keywords{Recuperación de Información en texto, Modelo vectorial, Tf-Idf}
+    \end{abstract}
+
+    % ? Include sections using the following convention:
+    % ?  - Add a file *.tex in sections folder
+    % ?  - Include file in main like \input
+    \input{sections/introduccion.tex}
+    \input{sections/mb.tex}
+    \input{sections/conclusion.tex}
+    % ? reference
+    \input{sections/reference.tex}
+\end{document}
