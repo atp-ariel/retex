@@ -18,7 +18,7 @@ El motor de búsqueda se basa en el modelo vectorial de recuperación de informa
     \item[$\bullet$] $R$: Función de ranking, generalmente es el coseno entre el vector de pesos de la consulta y los vectores de los documentos.
 \end{enumerate}
 
-El motor de búsqueda implementado sigue el flujo mostrado en la Fig \ref{esq}, donde el usuario realiza una consulta $q$ en forma de texto a través de la interfaz visual. La consulta $q$ se convierte en una instancia de la clase \verb|Query|, donde se almacenan las palabras claves de la misma, y se almacenan los pesos de cada término. Esta consulta se introduce en el modelo vectorial y se calcula el ranking $R$ de los documentos relevantes a $q$, donde el documento $R_1$  es el más relevante y por lo tanto tiene mayor similitud con la consulta $q$ del usuario.
+El motor de búsqueda implementado sigue el flujo mostrado en la Fig \ref{esq}, donde el usuario realiza una consulta $q$ en forma de texto a través de la interfaz visual. La consulta $q$ se convierte en una instancia de la clase \verb|Query|, donde se almacenan las palabras claves de la misma, y se almacenan los pesos de cada término. Esta consulta se introduce en el modelo vectorial, pero antes de esto se revisa en la caché de consultas, si $q$ está se devuelven los resultados de la misma, si $q$ no está entonces se introduce en el modelo y se calcula el ranking $R$ de los documentos relevantes a $q$, donde el documento $R_1$  es el más relevante y por lo tanto tiene mayor similitud con la consulta $q$ del usuario.
 
 \begin{figure}\label{esq}
     \includegraphics[width=10cm]{sections/img/esq.jpg}
@@ -26,17 +26,7 @@ El motor de búsqueda implementado sigue el flujo mostrado en la Fig \ref{esq}, 
     \caption{Flujo del motor de búsqueda}
 \end{figure}
 
-La preparación del modelo consiste en lo siguiente: se trabajó con la colección de documentos Cranfield \cite{cran} que cuenta con 1400 documentos y 255 consultas con la relación de relevancia de los documentos. Por tanto, se cargan todos los documentos del archivo \verb|cran.all.1400|, para ello se implementa un clase denominada \verb|CranParser| que utilizando la librería de expresiones regulares de Python \verb|re| separa todos los docuementos y sus metadatos en instancias de la clase \verb|CranDocument|. La clase anteriormente mencionada representa un documento de la colección Cranfield y su implementación es la siguiente:
-
-\begin{verbatim}
-class CranDocument(BaseDocument):
-    __type__ = "cran"
-
-    def __init__(self, id, title, text, author, editorial):
-        BaseDocument.__init__(self, id, title.lower(), text.lower())
-        self.author = author.lower()
-        self.editorial = editorial.lower()
-\end{verbatim}
+La preparación del modelo consiste en lo siguiente: se cargan todos los documentos de la colección utilizando una clase que herede de \verb|Parser| según convenga para la colección. Las clases concretas de la clase abstracta mencionada separan todos los docuementos y sus metadatos en instancias de la clase \verb|BaseDocument| o clases concretas de \verb|BaseDocument| según convenga para la colección.
 
 Luego de tener una lista con todos los documentos de la colección se procede a procesar los textos de los documentos y posteriormente extraer las palabras claves o los términos de los documentos. 
 
@@ -110,6 +100,12 @@ Luego de esto, se tiene una lista de vectores que contienen los términos y los 
 
 Una consulta es una cadena de texto que expresa las necesidades de información del usuario, por tal razón se realiza el mismo procesamiento de texto que a los documentos, como la lemantización, eliminación de palabras claves y se calculan los pesos asociados a las palabras claves de la consulta.
 
+Para el cómputo de los pesos de una consulta se introduce el valor $\alpha$ que se conoce como constante de suavizado. Este permite amortiguar la variación en los pesos de términos que ocurren poco, para evitar, por ejemplo, grandes saltos entre la frecuencia de un término que aparece una vez a otro que aparece dos veces.
+
+Por tanto, la ecuación de los pesos de los términos de la consulta es la siguiente:
+
+$$ w_{iq} = \bigg(\alpha + (1 -\alpha) tf_{iq}\bigg) * idf_i  $$
+
 \subsubsection{Construcción del ranking}
 
 Como se expresa en la definición formal del modelo vectorial se tiene una función de similitud $R$ que calcula la similitud entre la consulta y los documentos. En este caso se utilizó el coseno del ángulo formado por el vector de pesos $w_q$ de la consulta y el vector de pesos de cada documento, cuya expresión es la siguiente:
@@ -125,7 +121,7 @@ Luego de que se tiene calculado esta medida de similitud para cada uno de los do
     \item[$\bullet$] \textbf{Threshold-rank:} se tiene un parámetro \verb|threshold| que representa un umbral para construir el ranking, el cual estará compuesto por todos los documentos cuyo valor de la función $sim$ se mayor que el parámetro \verb|threshold|. El ranking será un conjunto de aridad variable. 
 \end{enumerate}
 
-Luego de explorar ambos enfoques se decidió fusionarlos de la siguiente forma, se calcula el valor $sim$ para cada documento, y luego se calcula el Top-rank y se almacenan aquellos documentos cuyo valor de la función $sim$ se mayor que el umbral. En Retex el umbral se fijó 0.005 y el top en 500. 
+Luego de explorar ambos enfoques se decidió fusionarlos de la siguiente forma, se calcula el valor $sim$ para cada documento, y luego se calcula el Top-rank y se almacenan aquellos documentos cuyo valor de la función $sim$ se mayor que el umbral. 
 
 \begin{verbatim}
 def get_posting_list(self, framework, qry, wq):
@@ -157,18 +153,10 @@ Para la evaluación del motor de búsqueda se utilizaron 4 medidas de evaluació
     \item[$\bullet$] \textbf{Medida F1:} permite enfatizar armonizar la precisión y recall. Es un caso particular de la medida $F$ con parámetro $\beta = 1$. 
 \end{enumerate}
 
-Luego ejecutar cada una de las 255 consultas de la colección Cranfield y calcular para cada una de ellas las métricas se halló la media aritmética de estas y se tomó como valor de las métricas para el motor de búsqueda de ReTex. Quedando como sigue:
-
-\begin{enumerate}
-    \item[$\bullet$] $P = 0.00654$
-    \item[$\bullet$] $R = 0.305$
-    \item[$\bullet$] $F = 0.00811$
-    \item[$\bullet$] $F1 = 0.0127$
-\end{enumerate}
 
 Se tiende a pensar que la precisión es la medida fundamental para evaluar estos sistemas dado que representa la cantidad de documentos recuperados que son relevantes, pero no siempre se quiere esto si no que se desea tener la mayor cantidad de documentos relevantes dentro de los recuperados. Por tanto, se enfatizó en mejorar el recall.
 
-\subsubsection{API del motor de búsqueda}
+\subsection{API del motor de búsqueda}
 
 Se implementó una API para interactuar con el motor de búsqueda, esta interfaz tiene las siguientes rutas:
 
@@ -177,6 +165,53 @@ Se implementó una API para interactuar con el motor de búsqueda, esta interfaz
     \item[$\bullet$] \verb|/eval| devuelve un json con los valores de las métricas de la evaluación del motor de búsqueda.
     \item[$\bullet$] \verb|/collection/:id| que devuelve un json con el documento de la colección con identificador $id$.  
 \end{enumerate}
+
+\subsection{Comportamiento del motor de búsqueda en distintos contextos}
+
+Retex se evaluó con dos colecciones de documentos:
+
+\begin{itemize}
+    \item Cranfield \cite{cran}: colección de prueba surgida para los experimentos Cranfield, enfocados a estudiar la recuperación de información y en especial a evaluar la eficiencia de los sistemas de indexado de los años 1960. Esta colección fue desarrollada por Cyril W. Cleverdon en el Colegio de Aeronáutica, hoy conocido como la Universidad de Cranfield. La colección está compuesta por 1400 documentos en inglés, y 255 consultas, además de las relaciones de relevancia para cada consulta.
+    \item Medline: colección de prueba con enfoque biomédico y ciencias naturales, incluye información bibliográfica de artículos de temas de medicina, enfermería, farmacia, estomatología, veterinaria, y salud. Esta colección fue compilada por la Biblioteca Nacional de Medicina de los Estados Unidos, lanzando su primera versión en línea en 1971. Cuenta con 1033 documentos en inglés, y 30 consultas, además de las relaciones de relevancia para cada consulta.
+\end{itemize}
+
+Se implementó una clase concreta de \verb|Parser| para cada colección así como una clase concreta de \verb|BaseDocument|. Estas clases llevan por nombre: \verb|CranParser|, \verb|MedlineParser|, y para los documentos: \verb|CranDocument| y \verb|MedlineDocument|.
+
+A continuación se analiza el comportamiento del sistema con diferentes parámetros, por ejemplo: el umbral, el top del ranking y el valor $\alpha$. El análisis se realiza con el fin de encontrar los valores óptimos que maximicen el recobrado del sistema.
+
+\subsubsection{Medline}
+
+Se presenta la evaluación del comportamiento del sistema con los documentos de la colección Medline en los siguientes contextos:
+
+\begin{itemize}
+    \item Con \verb|umbral = 0.1|, \verb|top = 600| y \verb|alpha = 0.5|, el sistema tiene $P = 0.31736$, $R = 0.55088$, $F-mean = 0.33012$ y $F1 = 0.37067$.
+    \item Con \verb|umbral = 0.1|, \verb|top = 600| y \verb|alpha = 0.4|, el sistema tiene $P = 0.31706$, $R = 0.54998$, $F-mean = 0.32960$ y $F1 = 0.36988$.
+    \item Con \verb|umbral = 0.08|, \verb|top = 600| y \verb|alpha = 0.5|, el sistema tiene $P = 0.27365$, $R = 0.60575$, $F-mean = 0.29249$ y $F1 = 0.34415$.
+    \item Con \verb|umbral = 0.08|, \verb|top = 600| y \verb|alpha = 0.4|, el sistema tiene $P = 0.27232$, $R = 0.60461$, $F-mean = 0.29107$ y $F1 = 0.34264$.
+\end{itemize}
+
+El sistema con los parámetros \verb|umbral = 0.08| y \verb|alpha = 0.5| recupera en promedio el 60.58\% de los documentos relevantes a una consulta, lo cual se puede catalogar de aceptable. 
+
+Si se reduce el umbral tiende a mejorar el recobrado del sistema, estos son los resultados con umbral 0.05: $P = 0.19993$, $R = 0.71826$, $F-mean = 0.22077$ y $F1 = 0.27986$. 
+
+Si se presta atención la precisión disminuye considerablemente cada vez que se disminuye el valor del umbral mientras que el recobrado aumenta considerablemente.
+
+\subsubsection{Cranfield}
+
+Se presenta la evaluación del comportamiento del sistema con los documentos de la colección Cranfield en los siguientes contextos:
+
+\begin{itemize}
+    \item Con \verb|umbral = 0.1|, \verb|top = 600| y \verb|alpha = 0.5|, el sistema tiene $P = 0.00875$, $R = 0.13097$, $F-mean = 0.01056$ y $F1 = 0.01545$.
+    \item Con \verb|umbral = 0.1|, \verb|top = 600| y \verb|alpha = 0.4|, el sistema tiene $P = 0.00867$, $R = 0.13077$, $F-mean = 0.01047$ y $F1 = 0.01532$.
+    \item Con \verb|umbral = 0.05|, \verb|top = 600| y \verb|alpha = 0.4|, el sistema tiene $P = 0.00734$, $R = 0.24694$, $F-mean = 0.00906$ y $F1 = 0.01394$.
+    \item Con \verb|umbral = 0.05|, \verb|top = 600| y \verb|alpha = 0.5|, el sistema tiene $P = 0.00734$, $R = 0.24390$, $F-mean = 0.00905$ y $F1 = 0.01393$.
+\end{itemize}
+
+El sistema con los parámetros \verb|umbral = 0.05| y \verb|alpha = 0.4| recupera en promedio el 24.65\% de los documentos relevantes a una consulta, lo cual se puede catalogar de malo. 
+
+Si se reduce el umbral tiende a mejorar el recobrado del sistema, estos son los resultados con umbral 0.005: $P = 0.00643$, $R = 0.33233$, $F-mean = 0.00797$ y $F1 = 0.01247$. 
+
+Si se presta atención la precisión disminuye cada vez que se disminuye el valor del umbral mientras que el recobrado aumenta pero no se llegan a resultados aceptables.
 
 \subsection{Interfaz visual de Retex}
 
@@ -194,3 +229,29 @@ A continuación se muestran algunas imágenes de la interfaz visual:
     \caption{Resultado del motor de búsqueda para la consulta realizada}
 \end{figure}
 
+\section{Ejecutando el proyecto}
+
+El proyecto tiene 3 dependencias principales para su ejecución:
+
+\begin{itemize}
+    \item Python 3.8.10, lenguaje de programación en el cual está desarrollado todo el motor de búsqueda de Retex. 
+    \item VueJS y NodeJS, framework para el desarrollo de frontends en aplicaciones web.
+    \item Docker, un proyecto de código abierto que automatiza el despliegue de aplicaciones dentro de contenedores de software, proporcionando una capa adicional de abstracción y automatización de virtualización de aplicaciones en múltiples sistemas operativos.
+\end{itemize}
+
+\subsection{Instalación de dependencias}
+
+Para instalar Docker usted debe seguir las instrucciones especificadas en la página oficial de Docker en la siguiente dirección \url{https://docs.docker.com/get-docker/}, y necesita instalar también Docker Compose siguiendo las instrucciones especificadas en la página oficial en \url{https://docs.docker.com/compose/install/}.
+
+Una vez instalado Docker y Docker Compose, debe instalar NodeJS y el framework Vue JS, para ello siga las instrucciones en la páginas oficiales:
+
+\begin{itemize}
+    \item NodeJS: \url{https://nodejs.org/en/download/package-manager/}
+    \item VueJS: \url{https://v2.vuejs.org/v2/guide/installation.html}
+\end{itemize}
+
+Debe instalar para más comodidad el software Make, siga las instrucciones aquí \url{https://www.gnu.org/software/make/}, esta dependencia es opcional.
+
+\subsection{Ejecutando el proyecto}
+
+Una vez instaladas todas las dependencias usted debe ejecutar en la raíz del proyecto el comando \verb|make run|, si instaló el software Make, en caso contrario ejecute el siguiente comando: \verb|docker-compose up -d --build|

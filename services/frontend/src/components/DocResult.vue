@@ -14,18 +14,22 @@
 export default {
   name: 'SearchBox',
   props: {
-    doc: JSON, 
-    titleCaps: Function
+    doc: JSON
   },
   data(){
       return {
       };
   },
-  mounted(){
-    var small = "(a|an|and|as|at|but|by|en|for|if|in|of|on|or|the|to|v[.]?|via|vs[.]?)";
-    var punct = "([!\"#$%&'()*+,./:;<=>?@[\\\\\\]^_`{|}~-]*)";
-      
-    this.titleCaps = function(title){
+  methods: {
+    titleCaps : function(title){
+      var lower = function(word){
+        return word.toLowerCase();
+      };
+      var upper = function(word){
+        return word.substr(0,1).toUpperCase() + word.substr(1);
+      };
+      var small = "(a|an|and|as|at|but|by|en|for|if|in|of|on|or|the|to|v[.]?|via|vs[.]?)";
+      var punct = "([!\"#$%&'()*+,./:;<=>?@[\\\\\\]^_`{|}~-]*)";
       var parts = [], split = /[:.;?!] |(?: |^)["Ò]/g, index = 0;
       
       while (typeof x === "undefined") {
@@ -52,15 +56,8 @@ export default {
         .replace(/\b(AT&T|Q&A)\b/ig, function(all){
           return all.toUpperCase();
         });
-    };
+    },
       
-    function lower(word){
-      return word.toLowerCase();
-    }
-      
-    function upper(word){
-      return word.substr(0,1).toUpperCase() + word.substr(1);
-    }
   }
 }
 

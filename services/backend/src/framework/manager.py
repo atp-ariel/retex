@@ -20,6 +20,8 @@ class FrameworkManager:
         indexer = NounIndexer()
         self.weigths, self.idf, self.tf, self.K = indexer(self.collection.bodies)
 
+        print(self.K)
+
     def get_stats(self, index: int) -> Tuple[DocCollection, List[float]]:
         """Obtain the weights of a document given a collection index
 

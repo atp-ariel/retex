@@ -49,10 +49,15 @@ export default{
     },
     methods: {
         showResult(){
-            var result_area = this.$refs.result
-
+            var result_area = this.$refs.result;
+            console.log("jJAJA")
             if(this.result != null){
-                var ComponentClass = Vue.extend(DocResult)
+                var old = document.getElementsByClassName("doc-result");
+                console.log(old);
+                while (old.length > 0){
+                    old[0].parentNode.removeChild(old[0]);
+                }
+                var ComponentClass = Vue.extend(DocResult);
                 this.result.forEach(element => {
                     var instance = new ComponentClass({
                         propsData: {

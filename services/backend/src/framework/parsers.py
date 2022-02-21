@@ -61,3 +61,36 @@ class CranParser(BaseParser):
             W = W.replace("\n", "")
 
             yield {"T": T, "A": A, "B": B, "W": W}
+
+
+class MedlineParser(BaseParser):
+    __type__ = "med"
+
+
+    def __init__(self):
+        self.__type_doc__ = BaseDocument.factory(MedlineParser.__type__)
+        self.RE_W = re.compile("\.W")
+
+    def __call__(self, text: str) -> List[BaseDocument]:
+        """Return a list of base document
+        """
+        dict_docs = self.tokenize_docs(text)
+
+        docs = []
+        for i, dd in enumerate(dict_docs):
+            docs.append(self.__type_doc__(i + 1, dd["W"]))
+        return docs
+
+
+    def tokenize_docs(self, text: str) -> List[Dict[str, str]]:
+        """Document tokenizer, returns a dictionary of tokens for each document
+
+        """
+        docs_splitted = re.split("\.I [0-9]*", text)[1:]
+
+        for doc in docs_splitted:
+            doc = re.split(self.RE_W, doc)[1]
+
+            doc = doc.replace("\n", "")
+
+            yield {"W": doc}

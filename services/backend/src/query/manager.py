@@ -1,4 +1,6 @@
 from typing import List, Tuple
+
+from numpy import multiply
 from . import Query
 from ..framework import FrameworkManager
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
@@ -27,7 +29,12 @@ class QueryManager:
         vectorize = TfidfVectorizer(vocabulary=self.vocabulary)
         weight = vectorize.fit_transform([qry.text])
         
-        return weight
+        tf = weight / self.frame.idf
+
+        w = (1 - self.alpha) * tf
+        w += self.alpha
+        w = multiply(w, tf)
+        return w
 
     def preprocess_query_text(self, qry: Query) -> Query:
         text = qry.text

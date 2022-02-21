@@ -69,7 +69,6 @@ class Evaluator:
                 qry = self.queries[self.queries.index(Qry(i, ""))]
                 docs = list(map(lambda doc: doc.id, retex.do_query(qry.text)))
                 for i, m in enumerate(metrics):
-                    print(m)
                     results[i].append(m(docs, self.rel[qry.id]))
 
         evaluation = {
@@ -79,3 +78,4 @@ class Evaluator:
             "F1": mean(results[3])
         }
         return evaluation
+

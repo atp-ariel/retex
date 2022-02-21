@@ -26,3 +26,5 @@ class RankManager:
         top = list(map(lambda t: t[0], top))
         return top
 
+        
+

@@ -40,3 +40,8 @@ class CranDocument(BaseDocument):
         self.author = author.lower()
         self.editorial = editorial.lower()
 
+class MedlineDocumnet(BaseDocument):
+    __type__ = "med"
+
+    def __init__(self, id: int, text: str):
+        BaseDocument.__init__(self, id, text[:50].lower(), text.lower())

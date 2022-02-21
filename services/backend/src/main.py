@@ -7,7 +7,8 @@ from .evaluate import Evaluator
 
 
 app = FastAPI()
-system = Retex("cran")
+_type_ = "med"
+system = Retex(_type_)
 
 # NEW
 app.add_middleware(
@@ -24,7 +25,7 @@ def home():
 
 @app.get("/eval")
 def eval():
-    e = Evaluator("cran")
+    e = Evaluator(_type_)
     return e.evaluate(system)
 
 @app.get("/search")
@@ -44,3 +45,4 @@ def collection(doc_id: int) -> BaseDocument:
         return doc
     except Exception:
         raise HTTPException(status_code=404, detail="Document id not found")
+
