@@ -1,13 +1,21 @@
 {
     "db": {
         "cran": {
+            "name": "Cranfield",
             "path": "db/cran/cran.all.1400", 
             "qry": "db/cran/cran.qry",
             "rel": "db/cran/cranqrel",
             "__type__": "cran"
+        },
+        "med": {
+            "name": "Medline",
+            "path": "db/med/MED.ALL",
+            "qry": "db/med/MED.QRY",
+            "rel": "db/med/MED.REL",
+            "__type__": "med"
         }
     },
-    "alpha": 0.4,
-    "top": 500, 
-    "umbral": 0.005
+    "alpha": 0.5,
+    "top": 600, 
+    "umbral": 0.08
 }
